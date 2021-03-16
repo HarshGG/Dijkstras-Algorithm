@@ -13,7 +13,8 @@ run = True
 nodes = []
 numNodes = 1
 
-connections = []
+tempConn = [0,0]
+
 
 connPressed = False
 color =  ''
@@ -23,8 +24,23 @@ class Node:
         self.x = nx
         self.y = ny
         self.num = num
+        self.connections = []
 
-    pass
+def addConnection(node1, node2):
+    node1conns = node1.connections
+    node2conns = node2.connections
+    if node2 not in node1conns:
+        node1.connections.append(node2)
+    else:
+        pass
+    if node1 not in node2conns:
+        node2.connections.append(node1)
+    print("for first node")
+    for node in node1conns:
+        print(str(node.num) + " ")
+    print("for second node")
+    for node in node2conns:
+        print(str(node.num) + " ")
 
 while run:
     #handle events
@@ -39,6 +55,17 @@ while run:
             elif(not connPressed):
                 nodes.append(Node(pos[0],pos[1],numNodes))
                 numNodes+=1 
+            elif(connPressed):
+                for node in nodes:
+                    if(pos[0]>(node.x-20) and pos[0]<(node.x+20) and pos[1]>(node.y-20) and pos[1]<(node.y+20)):
+                        if(tempConn[0]==0):
+                            tempConn[0] = node.num
+                        else:
+                            tempConn[1] = node.num
+                            addConnection(nodes[tempConn[0]-1],nodes[tempConn[1]-1])
+                            tempConn = [0,0]
+                            
+
 
 
     #clear display
@@ -61,5 +88,3 @@ while run:
     display.blit(fontLarge.render('Connection', True, (0,0,0)), (865, 45))
     # update display
     pygame.display.flip()
-
-
