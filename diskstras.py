@@ -1,12 +1,14 @@
 import pygame
 import sys
 from pygame.locals import *
+import math
 pygame.init()
 
 display = pygame.display.set_mode((1000,600))
 pygame.display.set_caption("DIJKSTRA'S ALGORITHM")
 
 font = pygame.font.SysFont('Arial', 12)
+fontMedium = pygame.font.SysFont('Arial', 15)
 fontLarge = pygame.font.SysFont('Arial', 18)
 
 run = True
@@ -35,12 +37,18 @@ def addConnection(node1, node2):
         pass
     if node1 not in node2conns:
         node2.connections.append(node1)
-    print("for first node")
+    else:
+        pass
+    distance = getDistance(node1, node2)
     for node in node1conns:
-        print(str(node.num) + " ")
-    print("for second node")
-    for node in node2conns:
-        print(str(node.num) + " ")
+        print(node.num)
+    print('The distance between node ' + str(node1.num) + ' and node ' + str(node2.num) + ' is ' + str(distance))
+    
+
+def getDistance(node1, node2):
+    distance = math.sqrt(math.pow((node1.x-node2.x),2) + math.pow((node1.y-node2.y),2))
+    return distance
+
 
 while run:
     #handle events
@@ -86,5 +94,16 @@ while run:
         color = '#35ad2f'
     pygame.draw.rect(display, (color), pygame.Rect(850,30,100,50))
     display.blit(fontLarge.render('Connection', True, (0,0,0)), (865, 45))
+
+    #connection lines
+    for node in nodes:
+        startX = node.x 
+        startY = node.y 
+        for conn in node.connections:
+            endX = conn.x 
+            endY = conn.y 
+            pygame.draw.line(display, (0,0,0), (startX, startY), (endX, endY),3)
+            display.blit(font.render(str(round(getDistance(node,conn),3)), True, (99, 0, 98)), ((startX+endX)/2, (startY+endY)/2))
+
     # update display
     pygame.display.flip()
