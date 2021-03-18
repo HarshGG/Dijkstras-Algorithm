@@ -8,7 +8,7 @@ display = pygame.display.set_mode((1000,600))
 pygame.display.set_caption("DIJKSTRA'S ALGORITHM")
 
 font = pygame.font.SysFont('Arial', 12)
-fontMedium = pygame.font.SysFont('Arial', 15)
+fontMedium = pygame.font.SysFont('Arial', 17)
 fontLarge = pygame.font.SysFont('Arial', 18)
 
 run = True
@@ -41,13 +41,54 @@ def addConnection(node1, node2):
         pass
     distance = getDistance(node1, node2)
     for node in node1conns:
-        print(node.num)
-    print('The distance between node ' + str(node1.num) + ' and node ' + str(node2.num) + ' is ' + str(distance))
+        pass
+        #print(node.num)
+        #print('The distance between node ' + str(node1.num) + ' and node ' + str(node2.num) + ' is ' + str(distance))
     
 
 def getDistance(node1, node2):
     distance = math.sqrt(math.pow((node1.x-node2.x),2) + math.pow((node1.y-node2.y),2))
     return distance
+
+def dijkstra(start, end):
+    visited = []
+    unvisited = []
+    for i in range(len(nodes)):
+        unvisited.append(i+1)
+    table = {}
+    inf = 99999999
+    for i in range(len(nodes)):
+        if not i+1==start.num:
+            table[str(i+1)]=[inf,0] #i+1 is key, number of node. array's first element is distance from start, second is via which node
+        else:
+            table[str(i+1)]=[0,start.num] 
+    print(table)
+    curr = start
+    while unvisited:
+        currConns = curr.connections
+        for node in currConns:
+            if node not in visited:
+                nextCurr = node
+                pass
+        for node in currConns:
+            if not node in visited:
+                if not curr == start:
+                    dist = table[str(curr.num)][0] + getDistance(curr, node)
+                else:
+                    dist = getDistance(curr, node)
+                if(dist<table[str(node.num)][0]):
+                    table[str(node.num)][0] = dist
+                    table[str(node.num)][1] = curr.num
+                if(dist<getDistance(nextCurr,curr)):
+                    nextCurr = node
+        visited.append(curr)
+        print('curr ' + str(curr.num))
+        print(unvisited)
+        print(table)
+        print('')
+        unvisited.remove(curr.num)
+        curr = nextCurr
+
 
 
 while run:
@@ -60,6 +101,8 @@ while run:
             pos = pygame.mouse.get_pos()
             if(pos[0]>=850 and pos[0]<=950 and pos[1]>=30 and pos[1]<=80):
                 connPressed = not connPressed
+            elif(pos[0]>=850 and pos[0]<=900 and pos[1]>=80 and pos[1]<=130):
+                dijkstra(nodes[0],nodes[4])
             elif(not connPressed):
                 nodes.append(Node(pos[0],pos[1],numNodes))
                 numNodes+=1 
@@ -85,7 +128,7 @@ while run:
     #nodes
     for node in nodes:
         pygame.draw.circle(display, ('#fcb614'), (node.x, node.y), 20) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
-        display.blit(font.render(str(node.num), True, (0,0,0)), (node.x-3, node.y-7))
+        display.blit(font.render(str(node.num), True, (0,0,0)), (node.x-5, node.y-10))
 
     #connection button
     if(not connPressed):
@@ -94,6 +137,9 @@ while run:
         color = '#35ad2f'
     pygame.draw.rect(display, (color), pygame.Rect(850,30,100,50))
     display.blit(fontLarge.render('Connection', True, (0,0,0)), (865, 45))
+
+    #test button
+    pygame.draw.rect(display, ('#ff2659'), pygame.Rect(850,100,50,50))
 
     #connection lines
     for node in nodes:
