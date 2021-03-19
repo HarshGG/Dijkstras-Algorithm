@@ -16,9 +16,10 @@ nodes = []
 numNodes = 1
 
 tempConn = [0,0]
-
+tempDij = [0,0]
 
 connPressed = False
+dijPressed = False
 color =  ''
 
 class Node:
@@ -67,7 +68,7 @@ def dijkstra(start, end):
     while unvisited:
         currConns = curr.connections
         for node in currConns:
-            if node not in visited:
+            if node.num in unvisited:
                 nextCurr = node
                 pass
         for node in currConns:
@@ -79,7 +80,7 @@ def dijkstra(start, end):
                 if(dist<table[str(node.num)][0]):
                     table[str(node.num)][0] = dist
                     table[str(node.num)][1] = curr.num
-                if(dist<getDistance(nextCurr,curr)):
+                if(dist < table[str(curr.num)][0] + getDistance(nextCurr,curr)):
                     nextCurr = node
         visited.append(curr)
         print('curr ' + str(curr.num))
@@ -88,6 +89,42 @@ def dijkstra(start, end):
         print('')
         unvisited.remove(curr.num)
         curr = nextCurr
+
+def dijkstraNew(start, end):
+    unvisited = nodes
+    table = {}
+    inf = 99999999
+    for i in range(len(nodes)):
+        if not i+1==start.num:
+            table[str(i+1)]=[inf,0] #i+1 is key, number of node. array's first element is distance from start, second is via which node
+        else:
+            table[str(i+1)]=[0,start.num] 
+    print(table)
+    while unvisited:
+        curr = None
+        for node in unvisited:
+            if curr is None:
+                curr = node
+            elif table[str(node.num)][0] < table[str(curr.num)][0]:
+                curr = node
+        currConns = curr.connections
+
+        for node in currConns:
+            dist = getDistance(curr,node) + table[str(curr.num)][0]
+            if dist<table[str(node.num)][0]:
+                table[str(node.num)][0] = dist
+                table[str(node.num)][1] = curr
+        unvisited.remove(curr)
+
+        trackNode = end
+        path = []
+        while trackNode!=start:
+            if table[str(trackNode.num)][1]!=0:
+                path.insert(0,trackNode)
+                goalNode = table[str(goalNode.num)][1]
+        
+        path.insesrt(0,start)
+        print(path)
 
 
 
@@ -99,11 +136,11 @@ while run:
             run = False
         elif event.type==pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
-            if(pos[0]>=850 and pos[0]<=950 and pos[1]>=30 and pos[1]<=80):
+            if(pos[0]>=850 and pos[0]<=950 and pos[1]>=30 and pos[1]<=80):#connection button
                 connPressed = not connPressed
-            elif(pos[0]>=850 and pos[0]<=900 and pos[1]>=80 and pos[1]<=130):
-                dijkstra(nodes[0],nodes[4])
-            elif(not connPressed):
+            elif(pos[0]>=850 and pos[0]<=900 and pos[1]>=80 and pos[1]<=130):#shortest path button
+                dijPressed = True
+            elif(not connPressed and not dijPressed):
                 nodes.append(Node(pos[0],pos[1],numNodes))
                 numNodes+=1 
             elif(connPressed):
@@ -115,6 +152,17 @@ while run:
                             tempConn[1] = node.num
                             addConnection(nodes[tempConn[0]-1],nodes[tempConn[1]-1])
                             tempConn = [0,0]
+            if(dijPressed):
+                connPressed = False
+                for node in nodes:
+                    if(pos[0]>(node.x-20) and pos[0]<(node.x+20) and pos[1]>(node.y-20) and pos[1]<(node.y+20)):
+                        if(tempDij[0]==0):
+                            tempDij[0] = node.num
+                        else:
+                            tempDij[1] = node.num
+                            dijkstra(nodes[tempDij[0]-1],nodes[tempDij[1]-1])
+                            dijPressed = False
+                            tempDij = [0,0]
                             
 
 
@@ -128,7 +176,7 @@ while run:
     #nodes
     for node in nodes:
         pygame.draw.circle(display, ('#fcb614'), (node.x, node.y), 20) #(r, g, b) is color, (x, y) is center, R is radius and w is the thickness of the circle border.
-        display.blit(font.render(str(node.num), True, (0,0,0)), (node.x-5, node.y-10))
+        display.blit(fontLarge.render(str(node.num), True, (0,0,0)), (node.x-5, node.y-12))
 
     #connection button
     if(not connPressed):
